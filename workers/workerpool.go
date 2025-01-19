@@ -20,14 +20,14 @@ func NewWorkerPool(maxWorkers int, resultHandler func(ctx context.Context, resul
 }
 
 func (p *WorkerPool) Enqueue(ctx context.Context, task models.ComparisonTask) {
-	p.sem <- struct{}{} // Acquire semaphore slot
+	p.sem <- struct{}{} // acquire semaphore slot
 	go func() {
-		defer func() { <-p.sem }() // Release semaphore slot
+		defer func() { <-p.sem }() // release semaphore slot
 
-		// Process the task
+		// process the task
 		result := comparison.ProcessTask(task)
 
-		// Handle the result ( publish it to Kafka)
+		// handle the result ( publish it to Kafka)
 		if err := p.resultHandler(ctx, result); err != nil {
 			fmt.Printf("Failed to handle result for %s: %v\n", task.RequestID, err)
 		}
